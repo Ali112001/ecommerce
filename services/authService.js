@@ -28,6 +28,9 @@ exports.signup = asyncHandler(async (req, res, next) => {
   res.status(201).json({ data: user, token });
 });
 
+// @desc  Login
+// @route GET /api/v1/auth/login
+// @access Public
 exports.login = asyncHandler(async (req, res, next) => {
   // 1) check if password and email in the body (validation layer)
   // 2) check if user exist & if password is correct
@@ -40,4 +43,23 @@ exports.login = asyncHandler(async (req, res, next) => {
   const token = createToken(user._id);
   // 4) send response to client side
   res.status(200).json({ data: user, token });
+});
+
+exports.protect = asyncHandler(async (req, res, next) => {
+  // 1) Check if token exist , if exist get
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+  if (!token) {
+    return next(
+      new ApiError("You are not login, Please login to access this route", 401)
+    );
+  }
+  // 2) Verify token (no change happens, expired token)
+  // 3) Check if user exists
+  // 4) Check if user change his password after token created
 });
