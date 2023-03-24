@@ -9,11 +9,12 @@ const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
 const dbConnection = require("./config/database");
 // Routes
-const categoryRoute = require("./routes/categoryRoute");
-const subCategoryRoute = require("./routes/subCategoryRoute");
+const categoryRoute = require("./routes/categoryroute");
+const subCategoryRoute = require("./routes/subcategoryroute");
 const brandRoute = require("./routes/brandRoute");
-const productRoute = require("./routes/productRoute");
+const productRoute = require("./routes/productroute");
 const userRoute = require("./routes/userRoute");
+const authRoute = require("./routes/authRoute");
 // Connect with db
 dbConnection();
 
@@ -35,6 +36,7 @@ app.use("/api/v1/subcategories", subCategoryRoute);
 app.use("/api/v1/brands", brandRoute);
 app.use("/api/v1/products", productRoute);
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/auth", authRoute);
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`Can't find this route: ${req.originalUrl}`, 400));
@@ -45,7 +47,7 @@ app.use(globalError);
 
 const PORT = process.env.PORT || 8000;
 const server = app.listen(PORT, () => {
-  console.log(`App running running on port ${PORT}`);
+  console.log(`App running on port ${PORT}`);
 });
 
 // Handle rejection outside express
