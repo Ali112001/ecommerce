@@ -40,20 +40,19 @@ class ApiFeatures {
   search(modelName) {
     if (this.queryString.keyword) {
       let query = {};
-      if (modelName === 'Products') {
+      if (modelName === "Products") {
         query.$or = [
-          { title: { $regex: this.queryString.keyword, $options: 'i' } },
-          { description: { $regex: this.queryString.keyword, $options: 'i' } },
+          { title: { $regex: this.queryString.keyword, $options: "i" } },
+          { description: { $regex: this.queryString.keyword, $options: "i" } },
         ];
       } else {
-        query = { name: { $regex: this.queryString.keyword, $options: 'i' } };
+        query = { name: { $regex: this.queryString.keyword, $options: "i" } };
       }
 
       this.mongooseQuery = this.mongooseQuery.find(query);
     }
     return this;
   }
-
 
   paginate(countDocuments) {
     const page = this.queryString.page * 1 || 1;
@@ -80,6 +79,5 @@ class ApiFeatures {
     return this;
   }
 }
-
 
 module.exports = ApiFeatures;
