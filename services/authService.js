@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
+const sendEmail = require("../utils/sendEmail");
 
 const User = require("../models/userModel");
 
@@ -143,5 +144,25 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   user.passwordResetVerified = false;
 
   await user.save();
+
+  const message = `Hi ${user.name},\n We received a request to reset the password on your E-shop Account. \n ${resetCode} \n Enter this code to complete the reset. \n Thanks for helping us keep your account secure.\n The E-shop Team`;
   // 3) Send the reset code via email
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your Password reset code (valid for 10 min)",
+      message,
+    });
+  } catch (err) {
+    user.passwordResetCode = undefined;
+    user.passwordResetExpires = undefined;
+    user.passwordResetVerified = undefined;
+
+    await user.save();
+    return next(new ApiError("There is an error in sending email", 500));
+  }
+
+  res
+    .status(200)
+    .json({ status: "Success", message: "Reset code sent to email" });
 });
