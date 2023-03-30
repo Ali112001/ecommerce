@@ -37,12 +37,11 @@ const productSchema = new mongoose.Schema(
       type: Number,
     },
     colors: [String],
-
+    images: [String],
     imageCover: {
       type: String,
       required: [true, "Product Image cover is required"],
     },
-    images: [String],
     category: {
       type: mongoose.Schema.ObjectId,
       ref: "Category",
@@ -58,6 +57,10 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Brand",
     },
+    review: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Review",
+    },
     ratingsAverage: {
       type: Number,
       min: [1, "Rating must be above or equal 1.0"],
@@ -68,8 +71,25 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true }
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+    timestamps: true,
+  }
 );
+productSchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "product",
+  localField: "_id",
+});
+
+productSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "category",
+    select: "name -_id",
+  });
+  next();
+});
 
 const setImageURL = (doc) => {
   if (doc.imageCover) {
