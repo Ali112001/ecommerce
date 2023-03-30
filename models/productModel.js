@@ -37,11 +37,12 @@ const productSchema = new mongoose.Schema(
       type: Number,
     },
     colors: [String],
-    images: [String],
+
     imageCover: {
       type: String,
       required: [true, "Product Image cover is required"],
     },
+    images: [String],
     category: {
       type: mongoose.Schema.ObjectId,
       ref: "Category",
@@ -57,14 +58,11 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Brand",
     },
-    review: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Review",
-    },
     ratingsAverage: {
       type: Number,
       min: [1, "Rating must be above or equal 1.0"],
       max: [5, "Rating must be below or equal 5.0"],
+      // set: (val) => Math.round(val * 10) / 10, // 3.3333 * 10 => 33.333 => 33 => 3.3
     },
     ratingsQuantity: {
       type: Number,
@@ -72,17 +70,20 @@ const productSchema = new mongoose.Schema(
     },
   },
   {
+    timestamps: true,
+    // to enable virtual populate
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-    timestamps: true,
   }
 );
+
 productSchema.virtual("reviews", {
   ref: "Review",
   foreignField: "product",
   localField: "_id",
 });
 
+// Mongoose query middleware
 productSchema.pre(/^find/, function (next) {
   this.populate({
     path: "category",
@@ -105,12 +106,12 @@ const setImageURL = (doc) => {
     doc.images = imagesList;
   }
 };
-//findOne,findAll and update
+// findOne, findAll and update
 productSchema.post("init", (doc) => {
   setImageURL(doc);
 });
 
-//create
+// create
 productSchema.post("save", (doc) => {
   setImageURL(doc);
 });
